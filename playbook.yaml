@@ -1,0 +1,15 @@
+---
+- name: Provision AMI
+  hosts: all
+  tasks:
+     - name: dummy
+       command: echo dummy
+     #- name: Upgrade installed packages
+     #  yum:
+     #     update_cache: yes
+     #     upgrade: dist
+     - name: Install required packages
+       yum:
+          name: '{{ item }}'
+       with_items:
+          - openssh-server

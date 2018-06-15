@@ -1,0 +1,54 @@
+{
+	"variables": {
+		"instance_type": "t2.micro",
+		"region": "{{ env `AWS_REGION` }}",
+		"security_group_id": "{{ env `SECURITY_GROUP_INSTANCE` }}",
+		"ssh_user": "ec2-user",
+		"subnet_id": "{{ env `SUBNET` }}",
+		"vpc_id": "{{ env `VPC` }}"
+	},
+	"provisioners": [
+		{
+			"type": "shell",
+			"inline": [
+				""
+			]
+		},
+		{
+			"type": "ansible",
+			"playbook_file": "playbook.yaml",
+			"user": "{{ user `ssh_user` }}"
+		}
+	],
+	"builders": [
+		{
+			"ami_name": "frontdoor-{{ timestamp }}",
+			"ami_virtualization_type": "hvm",
+			"associate_public_ip_address": false,
+			"instance_type": "{{ user `instance_type` }}",
+			"region": "{{ user `region` }}",
+			"run_tags": {
+				"Packer": "frontdoor"
+			},
+			"security_group_id": "{{ user `security_group_id` }}",
+			"source_ami_filter": {
+				"filters": {
+					"name": "amzn-ami-*-ebs",
+					"root-device-type": "ebs",
+					"virtualization-type": "hvm"
+				},
+				"owners": [
+					"137112412989"
+				],
+				"most_recent": true
+			},
+			"ssh_interface": "private_ip",
+			"ssh_keypair_name": "frontdoor",
+			"ssh_private_key_file": "frontdoor.pem",
+			"ssh_username": "{{ user `ssh_user` }}",
+			"subnet_id": "{{ user `subnet_id` }}",
+			"type": "amazon-ebs",
+			"vpc_id": "{{ user `vpc_id` }}"
+		}
+	]
+}
