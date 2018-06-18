@@ -1,13 +1,7 @@
 ---
 version: 0.2
 
-env:
-   parameter-store:
-      SSH_KEY: '/frontdoor/ssh-key'
-
 phases:
    build:
       commands:
-         - echo "${SSH_KEY}" >frontdoor.pem
-         - echo chmod 0600 frontdoor.pem
-         - packer build -color=false template.json
+         - packer build template.json

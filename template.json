@@ -2,52 +2,53 @@
 	"variables": {
 		"instance_type": "t2.micro",
 		"region": "{{ env `AWS_REGION` }}",
-		"security_group_id": "{{ env `SECURITY_GROUP_INSTANCE` }}",
-		"ssh_user": "ec2-user",
-		"subnet_id": "{{ env `SUBNET` }}",
-		"vpc_id": "{{ env `VPC` }}"
+		"security_group_id": "{{ env `INSTANCE_SECURITY_GROUP` }}",
+		"ssh_user": "root",
+		"subnet_id": "{{ env `INSTANCE_SUBNET` }}",
+		"vpc_id": "{{ env `INSTANCE_VPC` }}"
 	},
 	"provisioners": [
 		{
 			"type": "shell",
-			"inline": [
-				""
-			]
+			"script": "prepare.sh"
 		},
 		{
 			"type": "ansible",
 			"playbook_file": "playbook.yaml",
-			"user": "{{ user `ssh_user` }}"
+			"user": "{{ user `ssh_user` }}",
+			"extra_arguments": [
+				"-vv"
+			]
 		}
 	],
 	"builders": [
 		{
-			"ami_name": "frontdoor-{{ timestamp }}",
+			"type": "amazon-ebs",
+			"ami_name": "bridge {{ isotime \"2006-01-02-15-04-05\" }}",
 			"ami_virtualization_type": "hvm",
 			"associate_public_ip_address": false,
 			"instance_type": "{{ user `instance_type` }}",
 			"region": "{{ user `region` }}",
 			"run_tags": {
-				"Packer": "frontdoor"
+				"Packer": "bridge"
 			},
-			"security_group_id": "{{ user `security_group_id` }}",
+			"security_group_ids": "{{ user `security_group_ids` }}",
 			"source_ami_filter": {
 				"filters": {
-					"name": "amzn-ami-*-ebs",
+					"name": "arch-linux-hvm-*.x86_64-ebs",
 					"root-device-type": "ebs",
 					"virtualization-type": "hvm"
 				},
 				"owners": [
-					"137112412989"
+					"093273469852"
 				],
 				"most_recent": true
 			},
 			"ssh_interface": "private_ip",
-			"ssh_keypair_name": "frontdoor",
-			"ssh_private_key_file": "frontdoor.pem",
+			"ssh_keypair_name": "bridge-packer",
+			"ssh_private_key_file": "bridge-packer.pem",
 			"ssh_username": "{{ user `ssh_user` }}",
 			"subnet_id": "{{ user `subnet_id` }}",
-			"type": "amazon-ebs",
 			"vpc_id": "{{ user `vpc_id` }}"
 		}
 	]
